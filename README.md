@@ -27,6 +27,14 @@ texte 2 :
 L'intérêt est de jouer sur le positionnement des phrases et l'ordre d'exploration de ces dernières.
 
 
-# Execution
+# Installation et execution
 
-C'est un script ruby qui demande gem pour "colorize" et fonctionnera certainement mieux sous UNIX pour les entrées utilisateur.
+
+Cela requiert rubygame et colorize
+
+```
+sudo aptitude install rubygems
+sudo gem install rubygame colorize
+```
+
+Testé uniquement sous Linux
