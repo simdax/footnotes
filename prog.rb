@@ -1,6 +1,8 @@
 #!/usr/bin/ruby
 # -*- coding: utf-8 -*-
 
+#petit test
+
 
 require "rubygems"
 require "colorize"
