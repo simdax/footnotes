@@ -6,17 +6,41 @@
 
 require "rubygems"
 require "colorize"
+require "rubygame"
 
-file=File.open("0", "r")
-texte=Array.new
-file.each(".") do |i|
-  texte << i
+Rubygame.init
+Rubygame::Mixer.open_audio
+
+if ARGV==nil then
+  ARGV="./"
 end
-phraseDebut=0
-texte.each_with_index do |item, index|
-  if item.start_with?('@')
-    phraseDebut=index
+
+$numeroFichier=0
+$texte=Array.new
+
+def imprimer(phrase)
+  puts phrase.gsub("@", '').gsub("#", '').gsub("\n", ' ')
+end
+
+
+def ouvrirFichier(numeroFichier, symboleDebut)
+  file=File.open(ARGV.to_s+$numeroFichier.to_s, "r")
+  if file.start_with?('|') then
+    begin
+      nomMusique << file.readchar
+    end until file.readchar=='\'
+end
+    mixer.load_audio(nomMusique)
+      file.each(".") do |i|
+    $texte << i
   end
+  phraseDebut=0
+  $texte.each do |i|
+    if i.start_with?(symboleDebut)
+      imprimer(phraseDebut)
+      break
+    end
+   
 end
 
 
@@ -36,12 +60,9 @@ puts "Chaque histoire a un début et une fin. Il y a un sens de lecture : Clique
 puts "Tapez sur n'importe quelle touche quand vous êtes prêts pour commencer".yellow
 puts "Chapitre premier : "
 
-def imprimer(phrase)
-    puts phrase.gsub("@", '').gsub("#", '').gsub("\n", ' ')
-end
+ouvrirFichier(0)
 
-endroitTexte=phraseDebut
-imprimer(texte[endroitTexte])
+
 userInput=get_char
 
 while (userInput != 'q') do
@@ -64,8 +85,8 @@ while (userInput != 'q') do
 
   elsif(texte[endroitTexte].start_with?("^")) then
     puts texte[endroitTexte][2, texte[endroitTexte].length-2].gsub("@", '').gsub("#", '').gsub("\n", ' ').red
-  symbole=texte[endroitTexte][-2,1]
-  file=File.open(texte[endroitTexte][1,1].to_s, "r")
+    symbole=texte[endroitTexte][-2,1]
+    file=File.open(texte[endroitTexte][1,1].to_s, "r")
     texte = Array.new
     file.each(".") do |i|
       texte << i
@@ -77,12 +98,12 @@ while (userInput != 'q') do
     end
     endroitTexte=phraseDebut
     puts texte[endroitTexte].gsub("@", '').gsub("#", '').gsub("\n", ' ')
-  
+    
   else
     puts texte[endroitTexte].gsub("@", '').gsub("#", '').gsub("\n", ' ')
   end
   
-##  puts endroitTexte.to_s.yellow
+  ##  puts endroitTexte.to_s.yellow
   userInput=get_char
   
 end
