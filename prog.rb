@@ -1,15 +1,12 @@
 #!/usr/bin/ruby
 # -*- coding: utf-8 -*-
 
-#petit test
-
-
 require "rubygems"
 require "colorize"
-require "rubygame"
+#require "rubygame"
 
-Rubygame.init
-Rubygame::Mixer.open_audio
+##Rubygame.init
+##Rubygame::Mixer.open_audio
 
 if ARGV==nil then
   ARGV="./"
@@ -17,30 +14,31 @@ end
 
 $numeroFichier=0
 $texte=Array.new
+$endroiTexte=0
 
 def imprimer(phrase)
   puts phrase.gsub("@", '').gsub("#", '').gsub("\n", ' ')
 end
 
-
 def ouvrirFichier(numeroFichier, symboleDebut)
   file=File.open(ARGV.to_s+$numeroFichier.to_s, "r")
-  if file.start_with?('|') then
-    begin
-      nomMusique << file.readchar
-    end until file.readchar=='\'
-end
-    mixer.load_audio(nomMusique)
-      file.each(".") do |i|
+  if file.readline.start_with?("|") then
+    file.rewind
+    nomMusique << file.readline.gsub("|", '')
+    file.readline
+  end
+
+  file.each(".") do |i|
     $texte << i
   end
-  phraseDebut=0
-  $texte.each do |i|
+  $texte.each_with_index do |i, index|
     if i.start_with?(symboleDebut)
-      imprimer(phraseDebut)
+      imprimer(i)
+      endroitTexte=index
       break
     end
-   
+  end
+    
 end
 
 
@@ -60,9 +58,7 @@ puts "Chaque histoire a un début et une fin. Il y a un sens de lecture : Clique
 puts "Tapez sur n'importe quelle touche quand vous êtes prêts pour commencer".yellow
 puts "Chapitre premier : "
 
-ouvrirFichier(0)
-
-
+ouvrirFichier(0, '@')
 userInput=get_char
 
 while (userInput != 'q') do
