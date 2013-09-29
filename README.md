@@ -44,6 +44,16 @@ Il est possible de jouer avec tous les symboles possibles, le dernier caractère
 
 Mais il est conseillé d'utiliser # @ ou ~ qui ne sont jamais imprimés par le programme.
 
+# Musique
+
+Il est possible d'ajouter du son au fichier texte que vous avez ouvert en mettant en première ligne du fichier le
+nom du fichier son (se trouvant dans le répertoire de l'histoire) entre '|'
+
+exemple:
+```
+|musique.mp3|
+TOut d'un coup, il vit la face livide de Johny se transformer en celle d'une... GOULE !
+```
 
 # Installation et execution
 
