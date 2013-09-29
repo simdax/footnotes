@@ -12,29 +12,28 @@ if ARGV==nil then
   ARGV="./"
 end
 
-$numeroFichier=0
 $texte=Array.new
-$endroiTexte=0
+$endroitTexte=0
 
 def imprimer(phrase)
   puts phrase.gsub("@", '').gsub("#", '').gsub("\n", ' ')
 end
 
 def ouvrirFichier(numeroFichier, symboleDebut)
-  file=File.open(ARGV.to_s+$numeroFichier.to_s, "r")
+  $texte.clear
+  file=File.open(ARGV.to_s+numeroFichier, "r")
   if file.readline.start_with?("|") then
     file.rewind
     nomMusique << file.readline.gsub("|", '')
     file.readline
   end
-
   file.each(".") do |i|
     $texte << i
   end
   $texte.each_with_index do |i, index|
     if i.start_with?(symboleDebut)
       imprimer(i)
-      endroitTexte=index
+      $endroitTexte=index
       break
     end
   end
@@ -46,8 +45,12 @@ def get_char
   state = `stty -g`
   `stty raw -echo -icanon isig`
   STDIN.getc.chr
+ 
 ensure
   `stty #{state}`
+
+ sleep 0.1
+
 end
 
 puts `clear`
@@ -58,48 +61,34 @@ puts "Chaque histoire a un début et une fin. Il y a un sens de lecture : Clique
 puts "Tapez sur n'importe quelle touche quand vous êtes prêts pour commencer".yellow
 puts "Chapitre premier : "
 
-ouvrirFichier(0, '@')
+ouvrirFichier(0.to_s, '@')
 userInput=get_char
 
 while (userInput != 'q') do
 
   case userInput
   when ('c') 
-    endroitTexte+=1
+    $endroitTexte+=1
   when ('s')
-    endroitTexte-=1
+    $endroitTexte-=1
   end
   
-  if(endroitTexte==texte.length) then
+  if($endroitTexte==$texte.length) then
     puts "fin de l'histoire, revenez en arrière".blue
-    endroitTexte-=1
-    puts texte[endroitTexte].gsub("@", '').gsub("#", '').gsub("\n", ' ')
-  elsif(endroitTexte==-1) then
+    $endroitTexte-=1
+    imprimer($texte[$endroitTexte])
+  elsif($endroitTexte==-1) then
     puts "début de l'histoire, avancez".green
-    endroitTexte+=1
-    puts texte[endroitTexte].gsub("@", '').gsub("#", '').gsub("\n", ' ')
-
-  elsif(texte[endroitTexte].start_with?("^")) then
-    puts texte[endroitTexte][2, texte[endroitTexte].length-2].gsub("@", '').gsub("#", '').gsub("\n", ' ').red
-    symbole=texte[endroitTexte][-2,1]
-    file=File.open(texte[endroitTexte][1,1].to_s, "r")
-    texte = Array.new
-    file.each(".") do |i|
-      texte << i
-    end
-    texte.each_with_index do |item, index|
-      if item.start_with?(symbole)
-        phraseDebut=index
-      end
-    end
-    endroitTexte=phraseDebut
-    puts texte[endroitTexte].gsub("@", '').gsub("#", '').gsub("\n", ' ')
-    
-  else
-    puts texte[endroitTexte].gsub("@", '').gsub("#", '').gsub("\n", ' ')
+    $endroitTexte+=1
+    imprimer($texte[$endroitTexte])  
+  elsif($texte[$endroitTexte].start_with?("^")) then
+    imprimer($texte[$endroitTexte][2..-1].red)
+    symbole=$texte[$endroitTexte][-2,1]
+    fichier=$texte[$endroitTexte][1,1]
+    ouvrirFichier(fichier, symbole)
+  else imprimer($texte[$endroitTexte]) 
   end
-  
-  ##  puts endroitTexte.to_s.yellow
+    
   userInput=get_char
   
 end
