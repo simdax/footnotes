@@ -26,6 +26,7 @@ def ouvrirFichier(numeroFichier, symboleDebut)
     file.rewind
     nomMusique << file.readline.gsub("|", '')
     file.readline
+  else file.rewind
   end
   file.each(".") do |i|
     $texte << i
@@ -37,7 +38,6 @@ def ouvrirFichier(numeroFichier, symboleDebut)
       break
     end
   end
-    
 end
 
 
