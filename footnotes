@@ -30,14 +30,13 @@ def ouvrirFichier(numeroFichier, symboleDebut)
   if file.readline.start_with?("|") then
     file.rewind
     if $musique != nil 
-      $musique.fade_out(1)
+      $musique.fade_out(3)
       sleep(1)
     end
     nomMusique = ARGV.to_s + file.readline.gsub(/\||\n/, '')
     $musique=Music.load(nomMusique)
     $musique.play(:fade_in => 10, :repeats => -1)
-  end
-  file.rewind
+  else file.rewind end
   file.each(".") do |i|
     $texte << i
   end
@@ -48,7 +47,7 @@ def ouvrirFichier(numeroFichier, symboleDebut)
       break
     end
   end
-# p $texte  ## toujours au cas ou pour vérifier
+ p $texte  ## toujours au cas ou pour vérifier
 end
 
 
@@ -70,7 +69,7 @@ puts "Bienvenue dans une triple histoire interactive. Vous devez parcourir un te
 puts "Elles sont en rouge et sont des passerelles entre les histoires".red
 puts "Chaque histoire a un début et une fin. Il y a un sens de lecture : Cliquez 'c' pour avancer ou 's' pour reculer dans l'histoire".yellow
 puts "Tapez sur n'importe quelle touche quand vous êtes prêts pour commencer".yellow
-puts "Vous pouvez quitter à tout moment avec 'q'".orange
+puts "Vous pouvez quitter à tout moment avec 'q'".yellow
 puts "tapez sur n'importe quelle touche pour commencer\n\n".yellow
 
 userInput=get_char
@@ -109,3 +108,4 @@ while (userInput != 'q') do
   
 end
 
+Rubygame.exit

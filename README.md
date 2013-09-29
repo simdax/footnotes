@@ -57,12 +57,8 @@ TOut d'un coup, il vit la face livide de Johny se transformer en celle d'une... 
 
 # Installation et execution
 
+Le logiciel est écrit en ruby, et il requiert rubygame et colorize
 
-Cela requiert rubygame et colorize
+Pour tout utilisateur de Ubuntu, il y a un petit script de dependances dans le répo. Il suffit de taper 
 
-```
-sudo aptitude install rubygems libsdl1.2-dev libsdl-gfx1.2-dev libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl-ttf2.0-dev
-sudo gem install rubygame colorize
-```
-
-Testé uniquement sous Linux
+     	  ./dependances.sh
