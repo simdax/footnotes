@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 # -*- coding: utf-8 -*-
 
 require "rubygems"
@@ -6,14 +6,13 @@ require "colorize"
 require "rubygame"
 include Rubygame
 
-
 Rubygame.init
 Mixer.open_audio
 
-
-if ARGV==nil then
-  p "Précisez un répertoire (n'oubliez pas le '/' final) dans lequel se trouve un texte"
-  ARGV=puts
+if ARGV.empty?
+  puts "Précisez un répertoire (n'oubliez pas le '/' final) dans lequel se trouve un texte"
+  ARGV[0]=gets
+  ARGV[0].gsub!("\n", '')
 end
 
 $texte=Array.new
@@ -47,7 +46,7 @@ def ouvrirFichier(numeroFichier, symboleDebut)
       break
     end
   end
- p $texte  ## toujours au cas ou pour vérifier
+# p $texte  ## toujours au cas ou pour vérifier
 end
 
 
@@ -108,4 +107,4 @@ while (userInput != 'q') do
   
 end
 
-Rubygame.exit
+Rubygame.quit
