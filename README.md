@@ -28,7 +28,7 @@ ET en __fin de phrase__ par un symbole @ ou # ou ~ pour signifier la phrase d'en
 
 texte 0 :
 
-Coucou mec.^1 Ça va @?
+@ Coucou mec.^1 Ça va @?
 
 texte 1 :
 
@@ -40,9 +40,9 @@ je me retrouve maintenant # là
 
 
 L'intérêt est de jouer sur le positionnement des phrases et l'ordre d'exploration de ces dernières.
-Il est possible de jouer avec tous les symboles possibles, le dernier caractère se trouvant de facto un symbole.
+Il est possible de jouer avec tous les symboles possibles, le dernier caractère se trouvant de facto un symbole, mais il est conseillé d'utiliser # @ ou ~ qui ne sont jamais imprimés par le programme.
 
-Mais il est conseillé d'utiliser # @ ou ~ qui ne sont jamais imprimés par le programme.
+De base, la première phrase du texte "0" doit commencer par un '@'.
 
 # Musique
 
