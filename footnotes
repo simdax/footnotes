@@ -3,91 +3,125 @@
 
 require "rubygems"
 require "colorize"
+
 require "rubygame"
 include Rubygame
 
 Rubygame.init
 Mixer.open_audio
 
+require 'io/wait'
+
+def clear_stdin(fois=15)
+  fois.times do STDIN.getc end
+end
+
+
 if ARGV.empty?
   puts "Précisez un répertoire (n'oubliez pas le '/' final) dans lequel se trouve un texte :"
   ARGV[0]=gets	
-	while ARGV[0][-2, 1]!='/' do
- 	puts "Il faut terminer par un / (oui je sais c'est chiant mais c'est comme ça)"
-	ARGV[0]=gets
-	end
+  while ARGV[0][-2, 1]!='/' do
+    puts "Il faut terminer par un / (oui je sais c'est chiant mais c'est comme ça)"
+    ARGV[0]=gets
+  end
   ARGV[0].gsub!("\n", '')
 end
+
+Dir.chdir(ARGV[0])
 
 $texte=Array.new
 $endroitTexte=0
 $musique=nil
+$niveauLecture=0
+$SPECIAL=false
+$nbTours=15
 
 def imprimer(phrase, clear=true)
 
-if clear
-puts `clear`
-puts "\\\\\\\\\\\\\\\\\\\\\\\\\      FOOTNOTES    \\\\\\\\\\\\\\\\\\\\"
-puts "Bienvenue dans une triple histoire interactive. Vous devez parcourir un texte composé de trois parties distinctes et en même temps complémentaires. Ces dernières sont reliées entre elles par certaines phrases faisant office de pont.".yellow
-puts "Elles sont en rouge et sont des passerelles entre les histoires".red
-puts "Chaque histoire a un début et une fin. Il y a un sens de lecture : Cliquez 'c' pour avancer ou 's' pour reculer dans l'histoire".yellow
-puts "Tapez sur n'importe quelle touche quand vous êtes prêts pour commencer".yellow
-puts "Vous pouvez quitter à tout moment avec 'q'".yellow
-puts "tapez sur n'importe quelle touche pour commencer\n\n".yellow
-end
+  if clear
+    puts `clear`
+    puts "\\\\\\\\\\\\\\\\\\\\\\\\\      FOOTNOTES    \\\\\\\\\\\\\\\\\\\\"
+    puts "Bienvenue dans une triple histoire interactive. Vous devez parcourir un texte composé de trois parties distinctes et en même temps complémentaires. Ces dernières sont reliées entre elles par certaines phrases faisant office de pont.".yellow
+    puts "Elles sont en rouge et sont des passerelles entre les histoires".red
+    puts "Chaque histoire a un début et une fin. Il y a un sens de lecture : Cliquez 'c' pour avancer ou 's' pour reculer dans l'histoire".yellow
+    puts "Tapez sur n'importe quelle touche quand vous êtes prêts pour commencer".yellow
+    puts "Vous pouvez quitter à tout moment avec 'q'".yellow
+    puts "tapez sur n'importe quelle touche pour commencer\n\n".yellow
+  end
 
-puts phrase.gsub("@", '').gsub("#", '').gsub("\n", ' ').gsub("~", '')
+## suppression de tous les caractères de codage
+  puts phrase.gsub("@", '').gsub("#", '').gsub("\n", ' ').gsub("~", '').gsub("^", '')
 
 end
 
 def ouvrirFichier(numeroFichier, symboleDebut)
 
   $texte.clear
+  $niveauLecture+=1
+  $endroitTexte=-1
 
+  file=File.open(numeroFichier.to_s, "r")
 
-  file=File.open(ARGV.to_s+numeroFichier, "r")
+  ### musique
   if file.readline.start_with?("|") then
     file.rewind
     if $musique != nil 
-      $musique.fade_out(2)
+      $musique.fade_out(5)
     end
-    nomMusique = ARGV.to_s + file.readline.gsub(/\||\n/, '')
+    nomMusique = file.readline.gsub(/\||\n/, '')
     $musique=Music.load(nomMusique)
     $musique.play(:fade_in => 10, :repeats => -1)
   else file.rewind end
+
   file.each(".") do |i|
     $texte << i
   end
-  $texte.each_with_index do |i, index|
-    if i.start_with?(symboleDebut)
-      imprimer(i, false)
-      $endroitTexte=index
-      break
+
+  ## p $texte   ## toujours au cas ou pour vérifier
+
+
+  loop do
+    $texte.each_with_index do |i, index|
+      if i.start_with?(symboleDebut*$niveauLecture)
+        imprimer(i, false)
+        $endroitTexte=index
+        break
+      end
+    end
+    if $endroitTexte==-1 then 
+      $niveauLecture-=1
+      symboleDebut*$niveauLecture
+    else break
     end
   end
- #p $texte   ## toujours au cas ou pour vérifier
 end
-
 
 def get_char(tempsSleep=0.1)
   state = `stty -g`
   `stty raw -echo -icanon isig`
   STDIN.getc.chr
- 
+  
 ensure
   `stty #{state}`
-
- sleep tempsSleep
-
+  
+  sleep tempsSleep
+  
 end
 
 imprimer("")
 userInput=get_char
-ouvrirFichier(0.to_s, '@')
+if ARGV[1] then
+  ouvrirFichier(ARGV[1].to_s, "@")
+else ouvrirFichier(0.to_s, "@")
+end
+
+
 userInput=get_char
 
 while (userInput != 'q') do
-
+  
+  ligneActuelle=$texte[$endroitTexte]
+  
   case userInput
   when ('c') 
     $endroitTexte+=1
@@ -98,6 +132,7 @@ while (userInput != 'q') do
     redo
   end
   
+
   if($endroitTexte==$texte.length || $texte[$endroitTexte][0, 2]== "\n\n") then
     puts "fin de l'histoire, revenez en arrière".blue
     $endroitTexte-=1
@@ -106,17 +141,25 @@ while (userInput != 'q') do
     puts "début de l'histoire, avancez".green
     $endroitTexte+=1
     imprimer($texte[$endroitTexte], false)  
-  elsif($texte[$endroitTexte].start_with?("^")) then
-    imprimer($texte[$endroitTexte][2..-1].red)
+  elsif($texte[$endroitTexte].start_with?("^") && $SPECIAL==false) then
+    imprimer($texte[$endroitTexte][1..-1].red)
     symbole=$texte[$endroitTexte][-2,1]
-    fichier=$texte[$endroitTexte][1,1]
+    fichier=$niveauLecture%Dir.glob("*").length
     ouvrirFichier(fichier, symbole)
+    ##clear_stdin ## TODO je ne sais pas comment le faire... ou alors le bloquer ?
   else imprimer($texte[$endroitTexte]) 
   end
-    
-  userInput=""
+  
   userInput=get_char
-
+  
+  $nbTours-=1
+  
+  if $nbTours==0 then
+    $SPECIAL=!$SPECIAL
+    $nbTours=15
+  end
 end
+
+
 
 Rubygame.quit
