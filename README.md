@@ -8,9 +8,23 @@ Ce logiciel permet de faire des aventures textuelles parallèles.
 
 Que signifie des aventures textuelles parallèles?
 
-Tout d'abord le logiciel charge un premier texte. On parcoure celui-ci en avant (avec 'c') ou en arrière (avec 's').
-Dès qu'on rencontre une phrase qui s'imprime en rouge, cela signifie qu'un saut de texte est effectué. On explore
-ce nouveau texte à nouveau avec 'c' ou 's', jusqu'à rencontrer un nouveau pont, etc.
+Une aventure textuelle est un texte. Qui se lit. Classiquement, une
+*aventure* textuelle propose des choix, illustrant les choix d'un
+personnage que le lecteur incarne. Ce n'est pas le cas de
+footnotes. Dans footnotes, l'aventure consiste simplement dans une
+déambulation à travers le texte, vers l'avant ou vers l'arrière. À
+certains moments, des phrases-clef permettent le passage vers d'autres
+textes. Et, plongé dans ce nouveau texte, le lecteur pourra à nouveau
+déambuler. Chaque texte représente en quelque sorte un îlot textuel.
+
+###Concrètement: 
+
+Tout d'abord le logiciel charge un premier texte. On parcoure
+celui-ci en avant (avec ESPACE) ou en arrière (avec 'c').  Dès qu'on
+rencontre une phrase qui s'imprime en rouge, cela signifie qu'un saut
+de texte est effectué. On explore ce nouveau texte à nouveau avec
+'ESPACE' pour avancer ou 'c' pour reculer, jusqu'à rencontrer un
+nouveau pont, etc.
 
 ## Éditer facilement soi-même ses propres histoires
 
@@ -21,8 +35,7 @@ jusqu'à 9 textes possible.
 Il suffit de les nommer "0", "1", "2" etc.
 
 Dans le corps de texte, un renvoi vers un autre texte se fait en __début de phrase__ 
-par un carret ('^')
-ET en __fin de phrase__ par un symbole @ ou # ou ~ pour signifier la phrase d'entrée dans le nouveau texte.
+par un carret ('^') et un avancement à travers les paragraphes permettent 
 
 #### par exemple :
 

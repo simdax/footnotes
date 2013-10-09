@@ -32,33 +32,36 @@ Dir.chdir(ARGV[0])
 $texte=Array.new
 $endroitTexte=0
 $musique=nil
-$paragraphe=0
+$niveauLecture=0
+$SPECIAL=false
+$nbTours=15
 
-
-def imprimer(phrase=$texte[$endroitTexte], clear=true)
+def imprimer(phrase, clear=true)
 
   if clear
     puts `clear`
     puts "\\\\\\\\\\\\\\\\\\\\\\\\\      FOOTNOTES    \\\\\\\\\\\\\\\\\\\\"
     puts "Bienvenue dans une triple histoire interactive. Vous devez parcourir un texte composé de trois parties distinctes et en même temps complémentaires. Ces dernières sont reliées entre elles par certaines phrases faisant office de pont.".yellow
     puts "Elles sont en rouge et sont des passerelles entre les histoires".red
-    puts "Chaque histoire a un début et une fin. Il y a un sens de lecture : Cliquez sur ESPACE pour avancer ou 'b' pour reculer dans l'histoire".yellow
+    puts "Chaque histoire a un début et une fin. Il y a un sens de lecture : Cliquez 'c' pour avancer ou 's' pour reculer dans l'histoire".yellow
     puts "Tapez sur n'importe quelle touche quand vous êtes prêts pour commencer".yellow
     puts "Vous pouvez quitter à tout moment avec 'q'".yellow
     puts "tapez sur n'importe quelle touche pour commencer\n\n".yellow
   end
 
-  ## suppression de tous les caractères de codage
-  puts phrase.gsub("@", '').gsub("#", '').gsub("\n", ' ').gsub("^", '')
+## suppression de tous les caractères de codage
+  puts phrase.gsub("@", '').gsub("#", '').gsub("\n", ' ').gsub("~", '').gsub("^", '')
 
 end
 
-def ouvrirFichier(numeroFichier, symbole=true)
+def ouvrirFichier(numeroFichier, symboleDebut)
 
   $texte.clear
+  $niveauLecture+=1
+  $endroitTexte=-1
 
   file=File.open(numeroFichier.to_s, "r")
-  
+
   ### musique
   if file.readline.start_with?("|") then
     file.rewind
@@ -68,30 +71,28 @@ def ouvrirFichier(numeroFichier, symbole=true)
     nomMusique = file.readline.gsub(/\||\n/, '')
     $musique=Music.load(nomMusique)
     $musique.play(:fade_in => 10, :repeats => -1)
-  else file.rewind end 
-  
-  ##couperTexte
-  
-  file.each("\n\n") do |i|
+  else file.rewind end
+
+  file.each(".") do |i|
     $texte << i
   end
-  
-  $texte=$texte[$paragraphe].scan(/[^\.?!]+[\.!?]/).map(&:strip)
-  
-  if symbole==false then
-    $endroitTexte=$texte.length-1
-  elsif symbole==true
-    $endroitTexte=0
-  else 
-    $endroitTexte=$texte.index{ |mot| mot.start_with?(symbole)}
-    if $endroitTexte==nil then p "oups, exit..." ; sleep 1 ; exec("clear") end
+
+  loop do
+    $texte.each_with_index do |i, index|
+      if i.start_with?(symboleDebut*$niveauLecture)
+        $endroitTexte=index
+        imprimer(i, false)
+        break
+      end
+    end
+    if $endroitTexte==-1 then
+      $niveauLecture=-1 redo
+      break
+    else break
+    end
   end
   
-  
-  imprimer($texte[$endroitTexte], false)
-  
 end
-
 
 def get_char(tempsSleep=0.1)
   state = `stty -g`
@@ -102,7 +103,7 @@ ensure
   `stty #{state}`
   
   sleep tempsSleep
-
+  
 end
 
 imprimer("")
@@ -116,7 +117,7 @@ end
 userInput=get_char
 
 while (userInput != 'q') do
-
+    
   case userInput
   when (" ") 
     $endroitTexte+=1
@@ -129,7 +130,7 @@ while (userInput != 'q') do
   
   ligneActuelle=$texte[$endroitTexte]
 
-  if($endroitTexte==$texte.length) then
+  if($endroitTexte==$texte.length || ligneActuelle[0, 2]== "\n\n") then
     puts "fin de l'histoire, revenez en arrière".blue
     $endroitTexte-=1
     ligneActuelle=$texte[$endroitTexte]
@@ -140,34 +141,31 @@ while (userInput != 'q') do
     ligneActuelle=$texte[$endroitTexte]
     imprimer(ligneActuelle, false)
 
-  elsif(ligneActuelle.start_with?("^")) then
-    imprimer(ligneActuelle.red)
-    fichier=rand(Dir.glob("?").length)
-    ouvrirFichier(fichier, rand(2)==1)
-    ##clear_stdin ## TODO je ne sais pas comment le faire... ou alors le bloquer ?
-
-  elsif(ligneActuelle.start_with?("#")) then
-    imprimer(ligneActuelle[1..-3].yellow)
-    symbole=ligneActuelle[-3,1]
-    fichier=ligneActuelle[-2,1]
-    $paragraphe+=1
+  elsif(ligneActuelle.start_with?("^") && $SPECIAL==false) then
+    imprimer(ligneActuelle[1..-1].red)
+    symbole=ligneActuelle[-2,1]
+    fichier=$niveauLecture%Dir.glob("?").length
     ouvrirFichier(fichier, symbole)
-
-  elsif(ligneActuelle.start_with?("~")) then
-    imprimer(ligneActuelle[1..-3].yellow)
-    symbole=ligneActuelle[-3,1]
-    fichier=ligneActuelle[-2,1]
-    $paragraphe-=1
-    ouvrirFichier(fichier, symbole)
-
     ##clear_stdin ## TODO je ne sais pas comment le faire... ou alors le bloquer ?
 
   else imprimer(ligneActuelle)
-    
+  
   end
   
   userInput=get_char
   
+  $nbTours-=1
+
+  if $nbTours==0 then
+    $SPECIAL=!$SPECIAL
+    $nbTours=rand(10)
+  elsif $nbTours==-1 then # des fois j'ai vu des bugs comme ça, du coup...
+    $nbTours=rand(10)
+  end
+
+  
 end
+
+
 
 Rubygame.quit
