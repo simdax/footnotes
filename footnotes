@@ -33,7 +33,7 @@ $texte=Array.new
 $endroitTexte=0
 $musique=nil
 $paragraphe=0
-
+$fichierActuel=0
 
 def imprimer(phrase=$texte[$endroitTexte], clear=true)
 
@@ -56,6 +56,7 @@ end
 def ouvrirFichier(numeroFichier, symbole=true)
 
   $texte.clear
+  $fichierActuel=numeroFichier
 
   file=File.open(numeroFichier.to_s, "r")
   
@@ -84,7 +85,7 @@ def ouvrirFichier(numeroFichier, symbole=true)
     $endroitTexte=0
   else 
     $endroitTexte=$texte.index{ |mot| mot.start_with?(symbole)}
-    if $endroitTexte==nil then p "oups, exit..." ; sleep 1 ; exec("clear") end
+    if $endroitTexte==nil then p "Oups, a priori, il n'y a pas de symbole correspondant au pont. Verifiez votre texte. Exit... " ; sleep 1 ; exec("clear") end
   end
   
   
@@ -142,7 +143,12 @@ while (userInput != 'q') do
 
   elsif(ligneActuelle.start_with?("^")) then
     imprimer(ligneActuelle.red)
-    fichier=rand(Dir.glob("?").length)
+    begin
+      fichier=rand(Dir.glob("?").length)
+      if fichier==$fichierActuel
+        redo
+      end
+    end
     ouvrirFichier(fichier, rand(2)==1)
     ##clear_stdin ## TODO je ne sais pas comment le faire... ou alors le bloquer ?
 
